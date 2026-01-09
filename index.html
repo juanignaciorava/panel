@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ta-Te-Ti de Gatitos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .game-info {
+            color: white;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            background: #4a7c20;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .cell {
+            width: 120px;
+            height: 120px;
+            background: #6ba32d;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .cell:hover:not(.taken) {
+            background: #7fc235;
+            transform: scale(1.05);
+        }
+
+        .cell.taken {
+            cursor: not-allowed;
+        }
+
+        .cat {
+            width: 90%;
+            height: 90%;
+            position: relative;
+        }
+
+        /* Gato Gris Atigrado */
+        .gray-cat {
+            animation: plop 0.3s ease-out;
+        }
+
+        .gray-cat .body {
+            width: 70px;
+            height: 45px;
+            background: linear-gradient(180deg, #9e9e9e 0%, #757575 100%);
+            border-radius: 35px 35px 20px 20px;
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .gray-cat .body::before,
+        .gray-cat .body::after {
+            content: '';
+            position: absolute;
+            background: #616161;
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        .gray-cat .body::before {
+            width: 50px;
+            top: 10px;
+            left: 10px;
+        }
+
+        .gray-cat .body::after {
+            width: 40px;
+            top: 20px;
+            left: 15px;
+        }
+
+        .gray-cat .stripe1,
+        .gray-cat .stripe2,
+        .gray-cat .stripe3 {
+            position: absolute;
+            background: #616161;
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        .gray-cat .stripe1 {
+            width: 30px;
+            bottom: 45px;
+            left: calc(50% - 15px);
+        }
+
+        .gray-cat .stripe2 {
+            width: 35px;
+            bottom: 38px;
+            left: calc(50% - 17px);
+        }
+
+        .gray-cat .stripe3 {
+            width: 25px;
+            bottom: 31px;
+            left: calc(50% - 12px);
+        }
+
+        .gray-cat .head {
+            width: 50px;
+            height: 40px;
+            background: linear-gradient(180deg, #9e9e9e 0%, #757575 100%);
+            border-radius: 50% 50% 45% 45%;
+            position: absolute;
+            bottom: 45px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .gray-cat .ear-left,
+        .gray-cat .ear-right {
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 20px solid #9e9e9e;
+            position: absolute;
+            bottom: 75px;
+        }
+
+        .gray-cat .ear-left {
+            left: calc(50% - 30px);
+            transform: rotate(-15deg);
+        }
+
+        .gray-cat .ear-right {
+            left: calc(50% + 6px);
+            transform: rotate(15deg);
+        }
+
+        .gray-cat .ear-inner-left,
+        .gray-cat .ear-inner-right {
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 10px solid #ffb6c1;
+            position: absolute;
+            bottom: 75px;
+        }
+
+        .gray-cat .ear-inner-left {
+            left: calc(50% - 24px);
+            transform: rotate(-15deg);
+        }
+
+        .gray-cat .ear-inner-right {
+            left: calc(50% + 12px);
+            transform: rotate(15deg);
+        }
+
+        .gray-cat .eyes {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+        }
+
+        .gray-cat .eye {
+            width: 8px;
+            height: 3px;
+            background: #333;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .gray-cat .nose {
+            width: 8px;
+            height: 6px;
+            background: #ffb6c1;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 52px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Gato Blanco con Manchas */
+        .white-cat {
+            animation: plop 0.3s ease-out;
+        }
+
+        .white-cat .body {
+            width: 70px;
+            height: 45px;
+            background: linear-gradient(180deg, #ffffff 0%, #f0f0f0 100%);
+            border-radius: 35px 35px 20px 20px;
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 1px solid #ddd;
+        }
+
+        .white-cat .spot1,
+        .white-cat .spot2,
+        .white-cat .spot3 {
+            position: absolute;
+            background: #333;
+            border-radius: 50%;
+        }
+
+        .white-cat .spot1 {
+            width: 18px;
+            height: 12px;
+            bottom: 25px;
+            left: calc(50% - 25px);
+        }
+
+        .white-cat .spot2 {
+            width: 15px;
+            height: 10px;
+            bottom: 35px;
+            left: calc(50% + 5px);
+        }
+
+        .white-cat .spot3 {
+            width: 12px;
+            height: 8px;
+            bottom: 20px;
+            left: calc(50% + 10px);
+        }
+
+        .white-cat .head {
+            width: 50px;
+            height: 40px;
+            background: linear-gradient(180deg, #ffffff 0%, #f5f5f5 100%);
+            border-radius: 50% 50% 45% 45%;
+            position: absolute;
+            bottom: 45px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 1px solid #ddd;
+        }
+
+        .white-cat .head-spot {
+            width: 25px;
+            height: 20px;
+            background: #333;
+            border-radius: 50% 50% 30% 70%;
+            position: absolute;
+            bottom: 60px;
+            left: calc(50% - 5px);
+        }
+
+        .white-cat .ear-left,
+        .white-cat .ear-right {
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 20px solid #333;
+            position: absolute;
+            bottom: 75px;
+        }
+
+        .white-cat .ear-left {
+            left: calc(50% - 30px);
+            transform: rotate(-15deg);
+        }
+
+        .white-cat .ear-right {
+            left: calc(50% + 6px);
+            transform: rotate(15deg);
+            border-bottom-color: #fff;
+        }
+
+        .white-cat .ear-inner-left,
+        .white-cat .ear-inner-right {
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 10px solid #ffb6c1;
+            position: absolute;
+            bottom: 75px;
+        }
+
+        .white-cat .ear-inner-left {
+            left: calc(50% - 24px);
+            transform: rotate(-15deg);
+        }
+
+        .white-cat .ear-inner-right {
+            left: calc(50% + 12px);
+            transform: rotate(15deg);
+        }
+
+        .white-cat .eyes {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+        }
+
+        .white-cat .eye {
+            width: 8px;
+            height: 3px;
+            background: #333;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .white-cat .nose {
+            width: 8px;
+            height: 6px;
+            background: #ffb6c1;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 52px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        @keyframes plop {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .controls {
+            margin-top: 25px;
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+            color: white;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(238, 90, 90, 0.4);
+        }
+
+        .winner-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .winner-message.hidden {
+            display: none;
+        }
+
+        .winner-text {
+            font-size: 3rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .winner-cat {
+            transform: scale(1.5);
+            margin-bottom: 30px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .player-indicator {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255,255,255,0.2);
+            padding: 10px 25px;
+            border-radius: 30px;
+            margin-bottom: 20px;
+        }
+
+        .mini-cat {
+            width: 50px;
+            height: 50px;
+            position: relative;
+        }
+
+        .mini-cat .body {
+            width: 35px !important;
+            height: 22px !important;
+            bottom: 5px !important;
+        }
+
+        .mini-cat .head {
+            width: 25px !important;
+            height: 20px !important;
+            bottom: 20px !important;
+        }
+
+        .mini-cat .ear-left,
+        .mini-cat .ear-right {
+            border-left-width: 6px !important;
+            border-right-width: 6px !important;
+            border-bottom-width: 10px !important;
+            bottom: 35px !important;
+        }
+
+        .mini-cat .ear-left {
+            left: calc(50% - 15px) !important;
+        }
+
+        .mini-cat .ear-right {
+            left: calc(50% + 3px) !important;
+        }
+
+        .mini-cat .ear-inner-left,
+        .mini-cat .ear-inner-right {
+            display: none;
+        }
+
+        .mini-cat .eyes,
+        .mini-cat .nose,
+        .mini-cat .stripe1,
+        .mini-cat .stripe2,
+        .mini-cat .stripe3,
+        .mini-cat .spot1,
+        .mini-cat .spot2,
+        .mini-cat .spot3,
+        .mini-cat .head-spot {
+            display: none;
+        }
+
+        .score-board {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 15px;
+        }
+
+        .score {
+            color: white;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .score-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .cell.winning {
+            animation: winPulse 0.5s ease infinite alternate;
+        }
+
+        @keyframes winPulse {
+            from {
+                background: #6ba32d;
+                box-shadow: 0 0 0 rgba(255, 215, 0, 0);
+            }
+            to {
+                background: #8fd44a;
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Ta-Te-Ti de Gatitos</h1>
+
+    <div class="score-board">
+        <div class="score">
+            <div class="mini-cat gray-cat">
+                <div class="ear-left"></div>
+                <div class="ear-right"></div>
+                <div class="head"></div>
+                <div class="body"></div>
+            </div>
+            <span class="score-number" id="gray-score">0</span>
+        </div>
+        <div class="score">
+            <span class="score-number" id="white-score">0</span>
+            <div class="mini-cat white-cat">
+                <div class="ear-left"></div>
+                <div class="ear-right"></div>
+                <div class="head"></div>
+                <div class="body"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="player-indicator">
+        <span style="color: white; font-size: 1.1rem;">Turno:</span>
+        <div class="mini-cat" id="current-player-cat">
+            <div class="ear-left"></div>
+            <div class="ear-right"></div>
+            <div class="head"></div>
+            <div class="body"></div>
+        </div>
+        <span id="player-name" style="color: white; font-size: 1.1rem;">Gato Gris</span>
+    </div>
+
+    <div class="board" id="board">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
+    </div>
+
+    <div class="controls">
+        <button class="restart-btn" onclick="restartGame()">Reiniciar</button>
+    </div>
+
+    <div class="winner-message hidden" id="winner-modal">
+        <div class="winner-text" id="winner-text"></div>
+        <div class="winner-cat" id="winner-cat"></div>
+        <button class="restart-btn" onclick="restartGame()">Jugar de Nuevo</button>
+    </div>
+
+    <script>
+        let currentPlayer = 'gray';
+        let board = ['', '', '', '', '', '', '', '', ''];
+        let gameActive = true;
+        let scores = { gray: 0, white: 0 };
+
+        const winConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Filas
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columnas
+            [0, 4, 8], [2, 4, 6] // Diagonales
+        ];
+
+        function createGrayCat() {
+            return `
+                <div class="cat gray-cat">
+                    <div class="ear-left"></div>
+                    <div class="ear-right"></div>
+                    <div class="ear-inner-left"></div>
+                    <div class="ear-inner-right"></div>
+                    <div class="head"></div>
+                    <div class="eyes">
+                        <div class="eye"></div>
+                        <div class="eye"></div>
+                    </div>
+                    <div class="nose"></div>
+                    <div class="body"></div>
+                    <div class="stripe1"></div>
+                    <div class="stripe2"></div>
+                    <div class="stripe3"></div>
+                </div>
+            `;
+        }
+
+        function createWhiteCat() {
+            return `
+                <div class="cat white-cat">
+                    <div class="ear-left"></div>
+                    <div class="ear-right"></div>
+                    <div class="ear-inner-left"></div>
+                    <div class="ear-inner-right"></div>
+                    <div class="head"></div>
+                    <div class="head-spot"></div>
+                    <div class="eyes">
+                        <div class="eye"></div>
+                        <div class="eye"></div>
+                    </div>
+                    <div class="nose"></div>
+                    <div class="body"></div>
+                    <div class="spot1"></div>
+                    <div class="spot2"></div>
+                    <div class="spot3"></div>
+                </div>
+            `;
+        }
+
+        function updateCurrentPlayerIndicator() {
+            const catIndicator = document.getElementById('current-player-cat');
+            const playerName = document.getElementById('player-name');
+
+            catIndicator.className = 'mini-cat ' + (currentPlayer === 'gray' ? 'gray-cat' : 'white-cat');
+            playerName.textContent = currentPlayer === 'gray' ? 'Gato Gris' : 'Gato Blanco';
+        }
+
+        function handleCellClick(e) {
+            const cell = e.target.closest('.cell');
+            if (!cell) return;
+
+            const index = cell.dataset.index;
+
+            if (board[index] !== '' || !gameActive) return;
+
+            board[index] = currentPlayer;
+            cell.innerHTML = currentPlayer === 'gray' ? createGrayCat() : createWhiteCat();
+            cell.classList.add('taken');
+
+            if (checkWin()) {
+                gameActive = false;
+                scores[currentPlayer]++;
+                updateScores();
+                showWinner(currentPlayer);
+                return;
+            }
+
+            if (board.every(cell => cell !== '')) {
+                gameActive = false;
+                showWinner('tie');
+                return;
+            }
+
+            currentPlayer = currentPlayer === 'gray' ? 'white' : 'gray';
+            updateCurrentPlayerIndicator();
+        }
+
+        function checkWin() {
+            for (const condition of winConditions) {
+                const [a, b, c] = condition;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    highlightWinningCells(condition);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function highlightWinningCells(condition) {
+            const cells = document.querySelectorAll('.cell');
+            condition.forEach(index => {
+                cells[index].classList.add('winning');
+            });
+        }
+
+        function updateScores() {
+            document.getElementById('gray-score').textContent = scores.gray;
+            document.getElementById('white-score').textContent = scores.white;
+        }
+
+        function showWinner(winner) {
+            const modal = document.getElementById('winner-modal');
+            const text = document.getElementById('winner-text');
+            const catDisplay = document.getElementById('winner-cat');
+
+            if (winner === 'tie') {
+                text.textContent = '¡Empate!';
+                catDisplay.innerHTML = createGrayCat() + createWhiteCat();
+            } else {
+                text.textContent = winner === 'gray' ? '¡Ganó el Gato Gris!' : '¡Ganó el Gato Blanco!';
+                catDisplay.innerHTML = winner === 'gray' ? createGrayCat() : createWhiteCat();
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function restartGame() {
+            board = ['', '', '', '', '', '', '', '', ''];
+            gameActive = true;
+            currentPlayer = 'gray';
+
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                cell.innerHTML = '';
+                cell.classList.remove('taken', 'winning');
+            });
+
+            document.getElementById('winner-modal').classList.add('hidden');
+            updateCurrentPlayerIndicator();
+        }
+
+        // Event listeners
+        document.getElementById('board').addEventListener('click', handleCellClick);
+
+        // Initialize
+        updateCurrentPlayerIndicator();
+    </script>
+</body>
+</html>
